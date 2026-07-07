@@ -4,11 +4,11 @@
   "private": true,
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "node node_modules/expo/bin/cli start --lan",
-    "start:clear": "node node_modules/expo/bin/cli start --lan --clear",
-    "android": "node node_modules/expo/bin/cli start --android --lan",
-    "ios": "node node_modules/expo/bin/cli start --ios --lan",
-    "web": "node node_modules/expo/bin/cli start --web",
+    "start": "node scripts/start-expo.js start --lan",
+    "start:clear": "node scripts/start-expo.js start --lan --clear",
+    "android": "node scripts/start-expo.js start --android --lan",
+    "ios": "node scripts/start-expo.js start --ios --lan",
+    "web": "node scripts/start-expo.js start --web",
     "typecheck": "node node_modules/typescript/bin/tsc --noEmit"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "babel-preset-expo": "~54.0.0",
     "@types/react": "~19.1.10",
     "typescript": "~5.9.2"
   }
