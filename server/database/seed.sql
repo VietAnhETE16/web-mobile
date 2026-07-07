@@ -1,0 +1,1 @@
+-- Dữ liệu được seed bởi src/utils/initDb.js để mật khẩu có thể được hash an toàn.

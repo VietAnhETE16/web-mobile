@@ -1,0 +1,27 @@
+{
+  "name": "online-quiz-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "node node_modules/expo/bin/cli start --lan",
+    "start:clear": "node node_modules/expo/bin/cli start --lan --clear",
+    "android": "node node_modules/expo/bin/cli start --android --lan",
+    "ios": "node node_modules/expo/bin/cli start --ios --lan",
+    "web": "node node_modules/expo/bin/cli start --web",
+    "typecheck": "node node_modules/typescript/bin/tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo": "~54.0.25",
+    "expo-constants": "~18.0.13",
+    "expo-status-bar": "~3.0.8",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@types/react": "~19.1.10",
+    "typescript": "~5.9.2"
+  }
+}

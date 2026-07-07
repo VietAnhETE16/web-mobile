@@ -1,0 +1,4 @@
+[
+  {"username":"admin","password":"admin123","name":"Mai Việt Anh","email":"admin@quizhub.vn","role":"admin"},
+  {"username":"user","password":"user123","name":"Nguyễn Văn User","email":"user@quizhub.vn","role":"user"}
+]

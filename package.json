@@ -1,0 +1,12 @@
+{
+  "name": "online-quiz-web-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Website quiz HTML CSS JavaScript, backend Express SQLite va mobile Expo",
+  "scripts": {
+    "start": "node server/src/index.js",
+    "seed": "node server/src/utils/initDb.js",
+    "typecheck:mobile": "node mobile/node_modules/typescript/bin/tsc --noEmit -p mobile/tsconfig.json"
+  },
+  "engines": {"node": ">=22.5.0"}
+}

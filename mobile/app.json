@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "QuizHub",
+    "slug": "online-quiz-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#5267e8"
+    },
+    "android": {
+      "package": "vn.quizhub.mobile"
+    },
+    "ios": {
+      "bundleIdentifier": "vn.quizhub.mobile",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "ContentHub cần truy cập máy chủ API trong cùng mạng Wi-Fi.",
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true,
+          "NSAllowsArbitraryLoads": true
+        }
+      }
+    }
+  }
+}
