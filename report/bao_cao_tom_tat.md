@@ -9,7 +9,7 @@
 - Đồng hồ đếm ngược, nộp bài và tự chấm điểm ở backend.
 - Trang kết quả hiển thị điểm, đúng/sai, đáp án đã chọn, đáp án đúng và giải thích.
 - Bình luận, đánh giá công khai, liên hệ, giới thiệu.
-- Popup quảng cáo sau một phút và ghi nhớ đóng bằng localStorage.
+- Popup quảng cáo sau một phút và ghi nhớ đóng bằng cookie.
 - Admin quản lý bài thi, câu hỏi, 4 đáp án, đáp án đúng, bình luận và liên hệ.
 - Responsive dưới 800px, 800-1199px và từ 1200px.
 
