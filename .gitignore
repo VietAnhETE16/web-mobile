@@ -7,3 +7,4 @@ mobile/dist/
 mobile/dist-ios/
 mobile/.env.local
 *.log
+*.zip
