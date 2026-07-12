@@ -8,5 +8,7 @@
     "seed": "node server/src/utils/initDb.js",
     "typecheck:mobile": "node mobile/node_modules/typescript/bin/tsc --noEmit -p mobile/tsconfig.json"
   },
-  "engines": {"node": ">=22.5.0"}
+  "engines": {
+    "node": ">=22.5.0"
+  }
 }

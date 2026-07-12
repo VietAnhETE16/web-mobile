@@ -4,11 +4,11 @@ Hệ thống tạo và làm bài thi trắc nghiệm online gồm website HTML/C
 
 ## Thành viên
 
-| Thành viên | Nhiệm vụ |
-| --- | --- |
-| Mai Việt Anh | Backend, SQLite, API, xác thực, chấm điểm |
+| Thành viên        | Nhiệm vụ                                     |
+| ----------------- | -------------------------------------------- |
+| Mai Việt Anh      | Backend, SQLite, API, xác thực, chấm điểm    |
 | Nguyễn Quang Dũng | Website HTML/CSS/JS, làm bài, kết quả, admin |
-| Trần Phú Nghĩa | Mobile Expo, kiểm thử, báo cáo |
+| Trần Phú Nghĩa    | Mobile Expo, kiểm thử, báo cáo               |
 
 ## Chạy backend và website
 

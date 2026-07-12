@@ -1,17 +1,503 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React,{useEffect,useState}from"react";
-import{ActivityIndicator,Alert,FlatList,Image,Pressable,SafeAreaView,ScrollView,StyleSheet,Text,TextInput,View}from"react-native";
-import{API_URL,request}from"./src/api/api";
-type User={id:number;username:string;name:string;email:string;role:string};type Quiz={id:number;title:string;description:string;category:string;duration_minutes:number;image_url:string;question_count:number;average_rating:number;comment_count:number;comments?:any[]};type Question={id:number;question_text:string;options:{id:number;option_text:string}[]};
-const C={b:"#465fe7",i:"#14213d",m:"#667085",p:"#f6f8fc",w:"#fff",l:"#e3e8f1",g:"#19a477",r:"#dc4d4d"};
-const Btn=({text,onPress}:{text:string;onPress:()=>void})=><Pressable style={s.btn} onPress={onPress}><Text style={s.btnText}>{text}</Text></Pressable>;
-const Field=({label,value,set,multi=false}:{label:string;value:string;set:(v:string)=>void;multi?:boolean})=><View><Text style={s.label}>{label}</Text><TextInput style={[s.input,multi&&s.multi]} value={value} onChangeText={set} multiline={multi}/></View>;
-export default function App(){const[page,setPage]=useState("home"),[user,setUser]=useState<User|null>(null),[token,setToken]=useState(""),[quizzes,setQuizzes]=useState<Quiz[]>([]),[quiz,setQuiz]=useState<Quiz|null>(null),[questions,setQuestions]=useState<Question[]>([]),[answers,setAnswers]=useState<Record<number,number>>({}),[result,setResult]=useState<any>(null),[loading,setLoading]=useState(true);
-const load=async()=>{try{setQuizzes(await request("/quizzes"))}catch(e:any){Alert.alert("Lỗi kết nối",`${e.message}\n${API_URL}`)}finally{setLoading(false)}};useEffect(()=>{load();AsyncStorage.multiGet(["token","user"]).then(v=>{if(v[0][1])setToken(v[0][1]);if(v[1][1])setUser(JSON.parse(v[1][1]))})},[]);
-const login=async(u:string,p:string)=>{try{const d:any=await request("/auth/login",{method:"POST",body:JSON.stringify({username:u,password:p})});setUser(d.user);setToken(d.token);await AsyncStorage.multiSet([["token",d.token],["user",JSON.stringify(d.user)]]);setPage("home")}catch(e:any){Alert.alert("Đăng nhập thất bại",e.message)}};
-const open=async(id:number)=>{setLoading(true);try{setQuiz(await request(`/quizzes/${id}`));setPage("detail")}finally{setLoading(false)}};const take=async()=>{if(!user){setPage("login");return}setQuestions(await request(`/quizzes/${quiz!.id}/questions`));setAnswers({});setPage("take")};const submit=async()=>{const r:any=await request(`/quizzes/${quiz!.id}/submit`,{method:"POST",body:JSON.stringify({answers:questions.map(q=>({question_id:q.id,selected_option_id:answers[q.id]||null}))})},token);setResult(await request(`/attempts/${r.attempt_id}`,{},token));setPage("result")};
-if(loading)return <SafeAreaView style={s.center}><ActivityIndicator size="large" color={C.b}/></SafeAreaView>;if(page==="login")return <Login done={login} back={()=>setPage("home")}/>;return <SafeAreaView style={s.app}><View style={s.head}><Text style={s.logo}>Q</Text><Text style={s.headTitle}>QuizHub</Text><Pressable onPress={()=>setPage("contact")}><Text style={s.link}>Liên hệ</Text></Pressable><Pressable onPress={async()=>{if(user){setUser(null);setToken("");await AsyncStorage.clear()}else setPage("login")}}><Text style={s.link}>{user?"Đăng xuất":"Đăng nhập"}</Text></Pressable></View>{page==="home"?<FlatList contentContainerStyle={s.screen} data={quizzes} keyExtractor={x=>String(x.id)} ListHeaderComponent={<View style={s.hero}><Text style={s.heroTitle}>Thử thách kiến thức của bạn.</Text><Text style={s.white}>Làm bài và xem kết quả tức thì.</Text></View>} renderItem={({item})=><Pressable style={s.card} onPress={()=>open(item.id)}><Image source={{uri:item.image_url}} style={s.image}/><View style={s.pad}><Text style={s.tag}>{item.category}</Text><Text style={s.title}>{item.title}</Text><Text style={s.muted}>{item.description}</Text><Text style={s.meta}>{item.question_count} câu · {item.duration_minutes} phút · ★ {item.average_rating}</Text></View></Pressable>}/>:page==="detail"&&quiz?<Detail quiz={quiz} take={take} token={token} reload={()=>open(quiz.id)}/>:page==="contact"?<Contact back={()=>setPage("home")}/>:page==="take"?<ScrollView contentContainerStyle={s.screen}><Text style={s.pageTitle}>{quiz?.title}</Text>{questions.map((q,i)=><View style={s.panel} key={q.id}><Text style={s.q}>Câu {i+1}. {q.question_text}</Text>{q.options.map(o=><Pressable key={o.id} style={[s.opt,answers[q.id]===o.id&&s.chosen]} onPress={()=>setAnswers({...answers,[q.id]:o.id})}><Text>{o.option_text}</Text></Pressable>)}</View>)}<Btn text="Nộp bài" onPress={submit}/></ScrollView>:page==="result"&&result?<ScrollView contentContainerStyle={s.screen}><Text style={s.pageTitle}>Kết quả: {result.score}/10</Text><Text style={s.meta}>Đúng {result.correct_count} · Sai {result.wrong_count}</Text>{result.answers.map((a:any,i:number)=><View key={a.question_id} style={[s.panel,{borderLeftWidth:5,borderLeftColor:a.is_correct?C.g:C.r}]}><Text style={s.q}>Câu {i+1}. {a.question_text}</Text><Text>Bạn chọn: {a.selected_option_text||"Chưa chọn"}</Text><Text>Đúng: {a.correct_option_text}</Text><Text style={s.muted}>{a.explanation}</Text></View>)}<Btn text="Làm lại" onPress={take}/><Btn text="Về trang chủ" onPress={()=>setPage("home")}/></ScrollView>:null}</SafeAreaView>}
-function Login({done,back}:{done:(u:string,p:string)=>void;back:()=>void}){const[u,setU]=useState("user"),[p,setP]=useState("user123");return <SafeAreaView style={s.center}><Text style={s.pageTitle}>Đăng nhập</Text><Field label="Username" value={u} set={setU}/><Field label="Password" value={p} set={setP}/><Btn text="Đăng nhập" onPress={()=>done(u,p)}/><Btn text="Quay lại" onPress={back}/></SafeAreaView>}
-function Detail({quiz,take,token,reload}:{quiz:Quiz;take:()=>void;token:string;reload:()=>void}){const[n,setN]=useState(""),[e,setE]=useState(""),[b,setB]=useState(""),[rating,setRating]=useState(5);return <ScrollView contentContainerStyle={s.screen}><Image source={{uri:quiz.image_url}} style={s.detailImage}/><Text style={s.tag}>{quiz.category}</Text><Text style={s.pageTitle}>{quiz.title}</Text><Text style={s.muted}>{quiz.description}</Text><Text style={s.meta}>{quiz.question_count} câu · {quiz.duration_minutes} phút</Text><Btn text="Bắt đầu làm bài" onPress={take}/><View style={s.panel}><Text style={s.title}>Bình luận & đánh giá</Text><Field label="Họ tên" value={n} set={setN}/><Field label="Email" value={e} set={setE}/><Text style={s.label}>Điểm đánh giá</Text><View style={s.ratingRow}>{[1,2,3,4,5].map(x=><Pressable key={x} style={[s.ratingBox,rating===x&&s.ratingActive]} onPress={()=>setRating(x)}><Text style={rating===x?s.ratingTextActive:s.ratingText}>{x} ★</Text></Pressable>)}</View><Field label="Nội dung" value={b} set={setB} multi/><Btn text={`Gửi đánh giá ${rating} sao`} onPress={async()=>{try{await request(`/quizzes/${quiz.id}/comments`,{method:"POST",body:JSON.stringify({name:n,email:e,body:b,rating})},token);Alert.alert("Thành công");reload()}catch(x:any){Alert.alert("Lỗi",x.message)}}}/>{quiz.comments?.map(c=><View key={c.id} style={s.comment}><Text style={s.q}>{c.name} · ★ {c.rating}</Text><Text>{c.body}</Text></View>)}</View></ScrollView>}
-function Contact({back}:{back:()=>void}){const[n,setN]=useState(""),[e,setE]=useState(""),[m,setM]=useState("");return <ScrollView contentContainerStyle={s.screen}><Text style={s.pageTitle}>Liên hệ</Text><Field label="Họ tên" value={n} set={setN}/><Field label="Email" value={e} set={setE}/><Field label="Nội dung" value={m} set={setM} multi/><Btn text="Gửi liên hệ" onPress={async()=>{try{await request("/contact",{method:"POST",body:JSON.stringify({name:n,email:e,message:m})});Alert.alert("Đã gửi");back()}catch(x:any){Alert.alert("Lỗi",x.message)}}}/><Btn text="Quay lại" onPress={back}/></ScrollView>}
-const s=StyleSheet.create({app:{flex:1,backgroundColor:C.p},center:{flex:1,justifyContent:"center",padding:22,backgroundColor:C.p},head:{height:68,backgroundColor:C.w,flexDirection:"row",alignItems:"center",padding:14,gap:10,borderBottomWidth:1,borderColor:C.l},logo:{backgroundColor:C.b,color:C.w,fontWeight:"900",fontSize:20,padding:8,borderRadius:9},headTitle:{flex:1,fontSize:20,fontWeight:"900"},link:{color:C.b,fontWeight:"800"},screen:{padding:16,paddingBottom:40},hero:{backgroundColor:C.b,padding:24,borderRadius:20,marginBottom:18},heroTitle:{color:C.w,fontSize:25,fontWeight:"900"},white:{color:C.w},card:{backgroundColor:C.w,borderRadius:15,overflow:"hidden",marginBottom:14,borderWidth:1,borderColor:C.l},image:{height:160},detailImage:{height:220,borderRadius:15,marginBottom:14},pad:{padding:15},tag:{color:C.b,fontWeight:"900",textTransform:"uppercase",fontSize:11},title:{fontSize:19,fontWeight:"900",marginVertical:5},pageTitle:{fontSize:27,fontWeight:"900",marginBottom:8},muted:{color:C.m,marginVertical:5},meta:{color:C.m,marginVertical:10},btn:{backgroundColor:C.b,padding:12,borderRadius:10,alignItems:"center",marginTop:10},btnText:{color:C.w,fontWeight:"900"},panel:{backgroundColor:C.w,borderRadius:14,padding:15,marginVertical:8,borderWidth:1,borderColor:C.l},q:{fontWeight:"900",marginBottom:8},opt:{padding:12,borderWidth:1,borderColor:C.l,borderRadius:9,marginVertical:4},chosen:{borderColor:C.b,backgroundColor:"#eef0ff"},ratingRow:{flexDirection:"row",gap:8,marginTop:6,marginBottom:4},ratingBox:{flex:1,padding:9,borderWidth:1,borderColor:C.l,borderRadius:9,alignItems:"center",backgroundColor:C.w},ratingActive:{borderColor:C.b,backgroundColor:"#eef0ff"},ratingText:{color:C.m,fontWeight:"800"},ratingTextActive:{color:C.b,fontWeight:"900"},label:{fontWeight:"700",marginTop:9},input:{borderWidth:1,borderColor:C.l,borderRadius:9,padding:10,backgroundColor:C.w},multi:{minHeight:80},comment:{borderTopWidth:1,borderColor:C.l,paddingVertical:10}});
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { API_URL, request } from "./src/api/api";
+type User = {
+  id: number;
+  username: string;
+  name: string;
+  email: string;
+  role: string;
+};
+type Quiz = {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  duration_minutes: number;
+  image_url: string;
+  question_count: number;
+  average_rating: number;
+  comment_count: number;
+  comments?: any[];
+};
+type Question = {
+  id: number;
+  question_text: string;
+  options: {
+    id: number;
+    option_text: string;
+  }[];
+};
+const C = {
+  b: "#465fe7",
+  i: "#14213d",
+  m: "#667085",
+  p: "#f6f8fc",
+  w: "#fff",
+  l: "#e3e8f1",
+  g: "#19a477",
+  r: "#dc4d4d",
+};
+const Btn = ({ text, onPress }: { text: string; onPress: () => void }) => (
+  <Pressable style={s.btn} onPress={onPress}>
+    <Text style={s.btnText}>{text}</Text>
+  </Pressable>
+);
+const Field = ({
+  label,
+  value,
+  set,
+  multi = false,
+}: {
+  label: string;
+  value: string;
+  set: (v: string) => void;
+  multi?: boolean;
+}) => (
+  <View>
+    <Text style={s.label}>{label}</Text>
+    <TextInput
+      style={[s.input, multi && s.multi]}
+      value={value}
+      onChangeText={set}
+      multiline={multi}
+    />
+  </View>
+);
+export default function App() {
+  const [page, setPage] = useState("home"),
+    [user, setUser] = useState<User | null>(null),
+    [token, setToken] = useState(""),
+    [quizzes, setQuizzes] = useState<Quiz[]>([]),
+    [quiz, setQuiz] = useState<Quiz | null>(null),
+    [questions, setQuestions] = useState<Question[]>([]),
+    [answers, setAnswers] = useState<Record<number, number>>({}),
+    [result, setResult] = useState<any>(null),
+    [loading, setLoading] = useState(true);
+  const load = async () => {
+    try {
+      setQuizzes(await request("/quizzes"));
+    } catch (e: any) {
+      Alert.alert("Lỗi kết nối", `${e.message}\n${API_URL}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    load();
+    AsyncStorage.multiGet(["token", "user"]).then((v) => {
+      if (v[0][1]) setToken(v[0][1]);
+      if (v[1][1]) setUser(JSON.parse(v[1][1]));
+    });
+  }, []);
+  const login = async (u: string, p: string) => {
+    try {
+      const d: any = await request("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ username: u, password: p }),
+      });
+      setUser(d.user);
+      setToken(d.token);
+      await AsyncStorage.multiSet([
+        ["token", d.token],
+        ["user", JSON.stringify(d.user)],
+      ]);
+      setPage("home");
+    } catch (e: any) {
+      Alert.alert("Đăng nhập thất bại", e.message);
+    }
+  };
+  const open = async (id: number) => {
+    setLoading(true);
+    try {
+      setQuiz(await request(`/quizzes/${id}`));
+      setPage("detail");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const take = async () => {
+    if (!user) {
+      setPage("login");
+      return;
+    }
+    setQuestions(await request(`/quizzes/${quiz!.id}/questions`));
+    setAnswers({});
+    setPage("take");
+  };
+  const submit = async () => {
+    const r: any = await request(
+      `/quizzes/${quiz!.id}/submit`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          answers: questions.map((q) => ({
+            question_id: q.id,
+            selected_option_id: answers[q.id] || null,
+          })),
+        }),
+      },
+      token,
+    );
+    setResult(await request(`/attempts/${r.attempt_id}`, {}, token));
+    setPage("result");
+  };
+  if (loading)
+    return (
+      <SafeAreaView style={s.center}>
+        <ActivityIndicator size="large" color={C.b} />
+      </SafeAreaView>
+    );
+  if (page === "login")
+    return <Login done={login} back={() => setPage("home")} />;
+  return (
+    <SafeAreaView style={s.app}>
+      <View style={s.head}>
+        <Text style={s.logo}>Q</Text>
+        <Text style={s.headTitle}>QuizHub</Text>
+        <Pressable onPress={() => setPage("contact")}>
+          <Text style={s.link}>Liên hệ</Text>
+        </Pressable>
+        <Pressable
+          onPress={async () => {
+            if (user) {
+              setUser(null);
+              setToken("");
+              await AsyncStorage.clear();
+            } else setPage("login");
+          }}
+        >
+          <Text style={s.link}>{user ? "Đăng xuất" : "Đăng nhập"}</Text>
+        </Pressable>
+      </View>
+      {page === "home" ? (
+        <FlatList
+          contentContainerStyle={s.screen}
+          data={quizzes}
+          keyExtractor={(x) => String(x.id)}
+          ListHeaderComponent={
+            <View style={s.hero}>
+              <Text style={s.heroTitle}>Thử thách kiến thức của bạn.</Text>
+              <Text style={s.white}>Làm bài và xem kết quả tức thì.</Text>
+            </View>
+          }
+          renderItem={({ item }) => (
+            <Pressable style={s.card} onPress={() => open(item.id)}>
+              <Image source={{ uri: item.image_url }} style={s.image} />
+              <View style={s.pad}>
+                <Text style={s.tag}>{item.category}</Text>
+                <Text style={s.title}>{item.title}</Text>
+                <Text style={s.muted}>{item.description}</Text>
+                <Text style={s.meta}>
+                  {item.question_count} câu · {item.duration_minutes} phút · ★{" "}
+                  {item.average_rating}
+                </Text>
+              </View>
+            </Pressable>
+          )}
+        />
+      ) : page === "detail" && quiz ? (
+        <Detail
+          quiz={quiz}
+          take={take}
+          token={token}
+          reload={() => open(quiz.id)}
+        />
+      ) : page === "contact" ? (
+        <Contact back={() => setPage("home")} />
+      ) : page === "take" ? (
+        <ScrollView contentContainerStyle={s.screen}>
+          <Text style={s.pageTitle}>{quiz?.title}</Text>
+          {questions.map((q, i) => (
+            <View style={s.panel} key={q.id}>
+              <Text style={s.q}>
+                Câu {i + 1}. {q.question_text}
+              </Text>
+              {q.options.map((o) => (
+                <Pressable
+                  key={o.id}
+                  style={[s.opt, answers[q.id] === o.id && s.chosen]}
+                  onPress={() => setAnswers({ ...answers, [q.id]: o.id })}
+                >
+                  <Text>{o.option_text}</Text>
+                </Pressable>
+              ))}
+            </View>
+          ))}
+          <Btn text="Nộp bài" onPress={submit} />
+        </ScrollView>
+      ) : page === "result" && result ? (
+        <ScrollView contentContainerStyle={s.screen}>
+          <Text style={s.pageTitle}>Kết quả: {result.score}/10</Text>
+          <Text style={s.meta}>
+            Đúng {result.correct_count} · Sai {result.wrong_count}
+          </Text>
+          {result.answers.map((a: any, i: number) => (
+            <View
+              key={a.question_id}
+              style={[
+                s.panel,
+                {
+                  borderLeftWidth: 5,
+                  borderLeftColor: a.is_correct ? C.g : C.r,
+                },
+              ]}
+            >
+              <Text style={s.q}>
+                Câu {i + 1}. {a.question_text}
+              </Text>
+              <Text>Bạn chọn: {a.selected_option_text || "Chưa chọn"}</Text>
+              <Text>Đúng: {a.correct_option_text}</Text>
+              <Text style={s.muted}>{a.explanation}</Text>
+            </View>
+          ))}
+          <Btn text="Làm lại" onPress={take} />
+          <Btn text="Về trang chủ" onPress={() => setPage("home")} />
+        </ScrollView>
+      ) : null}
+    </SafeAreaView>
+  );
+}
+function Login({
+  done,
+  back,
+}: {
+  done: (u: string, p: string) => void;
+  back: () => void;
+}) {
+  const [u, setU] = useState("user"),
+    [p, setP] = useState("user123");
+  return (
+    <SafeAreaView style={s.center}>
+      <Text style={s.pageTitle}>Đăng nhập</Text>
+      <Field label="Username" value={u} set={setU} />
+      <Field label="Password" value={p} set={setP} />
+      <Btn text="Đăng nhập" onPress={() => done(u, p)} />
+      <Btn text="Quay lại" onPress={back} />
+    </SafeAreaView>
+  );
+}
+function Detail({
+  quiz,
+  take,
+  token,
+  reload,
+}: {
+  quiz: Quiz;
+  take: () => void;
+  token: string;
+  reload: () => void;
+}) {
+  const [n, setN] = useState(""),
+    [e, setE] = useState(""),
+    [b, setB] = useState(""),
+    [rating, setRating] = useState(5);
+  return (
+    <ScrollView contentContainerStyle={s.screen}>
+      <Image source={{ uri: quiz.image_url }} style={s.detailImage} />
+      <Text style={s.tag}>{quiz.category}</Text>
+      <Text style={s.pageTitle}>{quiz.title}</Text>
+      <Text style={s.muted}>{quiz.description}</Text>
+      <Text style={s.meta}>
+        {quiz.question_count} câu · {quiz.duration_minutes} phút
+      </Text>
+      <Btn text="Bắt đầu làm bài" onPress={take} />
+      <View style={s.panel}>
+        <Text style={s.title}>Bình luận & đánh giá</Text>
+        <Field label="Họ tên" value={n} set={setN} />
+        <Field label="Email" value={e} set={setE} />
+        <Text style={s.label}>Điểm đánh giá</Text>
+        <View style={s.ratingRow}>
+          {[1, 2, 3, 4, 5].map((x) => (
+            <Pressable
+              key={x}
+              style={[s.ratingBox, rating === x && s.ratingActive]}
+              onPress={() => setRating(x)}
+            >
+              <Text style={rating === x ? s.ratingTextActive : s.ratingText}>
+                {x} ★
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+        <Field label="Nội dung" value={b} set={setB} multi />
+        <Btn
+          text={`Gửi đánh giá ${rating} sao`}
+          onPress={async () => {
+            try {
+              await request(
+                `/quizzes/${quiz.id}/comments`,
+                {
+                  method: "POST",
+                  body: JSON.stringify({ name: n, email: e, body: b, rating }),
+                },
+                token,
+              );
+              Alert.alert("Thành công");
+              reload();
+            } catch (x: any) {
+              Alert.alert("Lỗi", x.message);
+            }
+          }}
+        />
+        {quiz.comments?.map((c) => (
+          <View key={c.id} style={s.comment}>
+            <Text style={s.q}>
+              {c.name} · ★ {c.rating}
+            </Text>
+            <Text>{c.body}</Text>
+          </View>
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
+function Contact({ back }: { back: () => void }) {
+  const [n, setN] = useState(""),
+    [e, setE] = useState(""),
+    [m, setM] = useState("");
+  return (
+    <ScrollView contentContainerStyle={s.screen}>
+      <Text style={s.pageTitle}>Liên hệ</Text>
+      <Field label="Họ tên" value={n} set={setN} />
+      <Field label="Email" value={e} set={setE} />
+      <Field label="Nội dung" value={m} set={setM} multi />
+      <Btn
+        text="Gửi liên hệ"
+        onPress={async () => {
+          try {
+            await request("/contact", {
+              method: "POST",
+              body: JSON.stringify({ name: n, email: e, message: m }),
+            });
+            Alert.alert("Đã gửi");
+            back();
+          } catch (x: any) {
+            Alert.alert("Lỗi", x.message);
+          }
+        }}
+      />
+      <Btn text="Quay lại" onPress={back} />
+    </ScrollView>
+  );
+}
+const s = StyleSheet.create({
+  app: { flex: 1, backgroundColor: C.p },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 22,
+    backgroundColor: C.p,
+  },
+  head: {
+    height: 68,
+    backgroundColor: C.w,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 14,
+    gap: 10,
+    borderBottomWidth: 1,
+    borderColor: C.l,
+  },
+  logo: {
+    backgroundColor: C.b,
+    color: C.w,
+    fontWeight: "900",
+    fontSize: 20,
+    padding: 8,
+    borderRadius: 9,
+  },
+  headTitle: { flex: 1, fontSize: 20, fontWeight: "900" },
+  link: { color: C.b, fontWeight: "800" },
+  screen: { padding: 16, paddingBottom: 40 },
+  hero: {
+    backgroundColor: C.b,
+    padding: 24,
+    borderRadius: 20,
+    marginBottom: 18,
+  },
+  heroTitle: { color: C.w, fontSize: 25, fontWeight: "900" },
+  white: { color: C.w },
+  card: {
+    backgroundColor: C.w,
+    borderRadius: 15,
+    overflow: "hidden",
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: C.l,
+  },
+  image: { height: 160 },
+  detailImage: { height: 220, borderRadius: 15, marginBottom: 14 },
+  pad: { padding: 15 },
+  tag: {
+    color: C.b,
+    fontWeight: "900",
+    textTransform: "uppercase",
+    fontSize: 11,
+  },
+  title: { fontSize: 19, fontWeight: "900", marginVertical: 5 },
+  pageTitle: { fontSize: 27, fontWeight: "900", marginBottom: 8 },
+  muted: { color: C.m, marginVertical: 5 },
+  meta: { color: C.m, marginVertical: 10 },
+  btn: {
+    backgroundColor: C.b,
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  btnText: { color: C.w, fontWeight: "900" },
+  panel: {
+    backgroundColor: C.w,
+    borderRadius: 14,
+    padding: 15,
+    marginVertical: 8,
+    borderWidth: 1,
+    borderColor: C.l,
+  },
+  q: { fontWeight: "900", marginBottom: 8 },
+  opt: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: C.l,
+    borderRadius: 9,
+    marginVertical: 4,
+  },
+  chosen: { borderColor: C.b, backgroundColor: "#eef0ff" },
+  ratingRow: { flexDirection: "row", gap: 8, marginTop: 6, marginBottom: 4 },
+  ratingBox: {
+    flex: 1,
+    padding: 9,
+    borderWidth: 1,
+    borderColor: C.l,
+    borderRadius: 9,
+    alignItems: "center",
+    backgroundColor: C.w,
+  },
+  ratingActive: { borderColor: C.b, backgroundColor: "#eef0ff" },
+  ratingText: { color: C.m, fontWeight: "800" },
+  ratingTextActive: { color: C.b, fontWeight: "900" },
+  label: { fontWeight: "700", marginTop: 9 },
+  input: {
+    borderWidth: 1,
+    borderColor: C.l,
+    borderRadius: 9,
+    padding: 10,
+    backgroundColor: C.w,
+  },
+  multi: { minHeight: 80 },
+  comment: { borderTopWidth: 1, borderColor: C.l, paddingVertical: 10 },
+});

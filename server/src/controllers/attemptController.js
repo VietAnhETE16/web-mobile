@@ -1,3 +1,42 @@
-const db=require("../config/db"),{grade}=require("../utils/grading");
-exports.submit=(req,res)=>{const quizId=+req.params.id;if(!db.prepare("SELECT id FROM quizzes WHERE id=?").get(quizId))return res.status(404).json({error:"Không tìm thấy bài thi."});res.json({message:"Quiz submitted successfully",...grade(quizId,req.body.answers,req.user.id)})};
-exports.detail=(req,res)=>{const a=db.prepare("SELECT a.*,q.title quiz_title FROM quiz_attempts a JOIN quizzes q ON q.id=a.quiz_id WHERE a.id=? AND (a.user_id=? OR ?='admin')").get(+req.params.attemptId,req.user.id,req.user.role);if(!a)return res.status(404).json({error:"Không tìm thấy kết quả."});const answers=db.prepare(`SELECT aa.question_id,qs.question_text,aa.selected_option_id,so.option_text selected_option_text,co.id correct_option_id,co.option_text correct_option_text,aa.is_correct,qs.explanation FROM attempt_answers aa JOIN questions qs ON qs.id=aa.question_id LEFT JOIN options so ON so.id=aa.selected_option_id JOIN options co ON co.question_id=qs.id AND co.is_correct=1 WHERE aa.attempt_id=? ORDER BY qs.order_index`).all(a.id);res.json({attempt_id:a.id,quiz:{id:a.quiz_id,title:a.quiz_title},score:a.score,total_questions:a.total_questions,correct_count:a.correct_count,wrong_count:a.wrong_count,submitted_at:a.submitted_at,answers})};
+const db = require("../config/db"),
+  { grade } = require("../utils/grading");
+exports.submit = (req, res) => {
+  const quizId = +req.params.id;
+  if (!db.prepare("SELECT id FROM quizzes WHERE id=?").get(quizId))
+    return res.status(404).json({
+      error: "Không tìm thấy bài thi.",
+    });
+  res.json({
+    message: "Quiz submitted successfully",
+    ...grade(quizId, req.body.answers, req.user.id),
+  });
+};
+exports.detail = (req, res) => {
+  const a = db
+    .prepare(
+      "SELECT a.*,q.title quiz_title FROM quiz_attempts a JOIN quizzes q ON q.id=a.quiz_id WHERE a.id=? AND (a.user_id=? OR ?='admin')",
+    )
+    .get(+req.params.attemptId, req.user.id, req.user.role);
+  if (!a)
+    return res.status(404).json({
+      error: "Không tìm thấy kết quả.",
+    });
+  const answers = db
+    .prepare(
+      `SELECT aa.question_id,qs.question_text,aa.selected_option_id,so.option_text selected_option_text,co.id correct_option_id,co.option_text correct_option_text,aa.is_correct,qs.explanation FROM attempt_answers aa JOIN questions qs ON qs.id=aa.question_id LEFT JOIN options so ON so.id=aa.selected_option_id JOIN options co ON co.question_id=qs.id AND co.is_correct=1 WHERE aa.attempt_id=? ORDER BY qs.order_index`,
+    )
+    .all(a.id);
+  res.json({
+    attempt_id: a.id,
+    quiz: {
+      id: a.quiz_id,
+      title: a.quiz_title,
+    },
+    score: a.score,
+    total_questions: a.total_questions,
+    correct_count: a.correct_count,
+    wrong_count: a.wrong_count,
+    submitted_at: a.submitted_at,
+    answers,
+  });
+};

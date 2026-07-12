@@ -1,8 +1,32 @@
 [
-  {"quiz_id":1,"question_text":"CPU là viết tắt của cụm từ nào?","order_index":1},
-  {"quiz_id":2,"question_text":"HTML dùng để làm gì?","order_index":1},
-  {"quiz_id":3,"question_text":"Từ khóa khai báo biến có thể gán lại?","order_index":1},
-  {"quiz_id":4,"question_text":"She ___ to school every day.","order_index":1},
-  {"quiz_id":5,"question_text":"2 + 3 × 4 bằng?","order_index":1},
-  {"quiz_id":6,"question_text":"Thủ đô Việt Nam là?","order_index":1}
+  {
+    "quiz_id": 1,
+    "question_text": "CPU là viết tắt của cụm từ nào?",
+    "order_index": 1
+  },
+  {
+    "quiz_id": 2,
+    "question_text": "HTML dùng để làm gì?",
+    "order_index": 1
+  },
+  {
+    "quiz_id": 3,
+    "question_text": "Từ khóa khai báo biến có thể gán lại?",
+    "order_index": 1
+  },
+  {
+    "quiz_id": 4,
+    "question_text": "She ___ to school every day.",
+    "order_index": 1
+  },
+  {
+    "quiz_id": 5,
+    "question_text": "2 + 3 × 4 bằng?",
+    "order_index": 1
+  },
+  {
+    "quiz_id": 6,
+    "question_text": "Thủ đô Việt Nam là?",
+    "order_index": 1
+  }
 ]

@@ -1,39 +1,54 @@
 <!doctype html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QuizHub - Thi trắc nghiệm online</title>
-  <link rel="stylesheet" href="/styles.css">
-</head>
-<body>
-  <header class="navbar">
-    <a class="brand" href="/" data-link><span>Q</span> QuizHub</a>
-    <button id="menuButton" class="menu-button" aria-label="Mở menu">☰</button>
-    <nav id="mainNav">
-      <a href="/" data-link>Trang chủ</a>
-      <a href="/about" data-link>Giới thiệu</a>
-      <a href="/contact" data-link>Liên hệ</a>
-      <a href="/admin" data-link id="adminNav" hidden>Quản trị</a>
-      <button id="authButton" class="outline small">Đăng nhập</button>
-    </nav>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QuizHub - Thi trắc nghiệm online</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
 
-  <main id="app"><div class="loading">Đang tải...</div></main>
+  <body>
+    <header class="navbar">
+      <a class="brand" href="/" data-link>
+        <span>Q</span>
+        QuizHub
+      </a>
+      <button id="menuButton" class="menu-button" aria-label="Mở menu">
+        ☰
+      </button>
+      <nav id="mainNav">
+        <a href="/" data-link>Trang chủ</a>
+        <a href="/about" data-link>Giới thiệu</a>
+        <a href="/contact" data-link>Liên hệ</a>
+        <a href="/admin" data-link id="adminNav" hidden>Quản trị</a>
+        <button id="authButton" class="outline small">Đăng nhập</button>
+      </nav>
+    </header>
 
-  <footer>
-    <div><b>QuizHub</b><p>Tạo và làm bài thi trắc nghiệm online.</p></div>
-    <div><b>Nhóm thực hiện</b><p>Mai Việt Anh · Nguyễn Quang Dũng · Trần Phú Nghĩa</p></div>
-  </footer>
+    <main id="app">
+      <div class="loading">Đang tải...</div>
+    </main>
 
-  <dialog id="adDialog">
-    <button class="dialog-close" id="closeAd">×</button>
-    <p class="eyebrow">Nội dung nổi bật</p>
-    <h2>Thử thách Tin học cơ bản</h2>
-    <p>Làm bài ngay và kiểm tra kiến thức của bạn.</p>
-    <button id="openAd">Xem ngay</button>
-  </dialog>
-  <div id="toast"></div>
-  <script src="/app.js"></script>
-</body>
+    <footer>
+      <div>
+        <b>QuizHub</b>
+        <p>Tạo và làm bài thi trắc nghiệm online.</p>
+      </div>
+      <div>
+        <b>Nhóm thực hiện</b>
+        <p>Mai Việt Anh · Nguyễn Quang Dũng · Trần Phú Nghĩa</p>
+      </div>
+    </footer>
+
+    <dialog id="adDialog">
+      <button class="dialog-close" id="closeAd">×</button>
+      <p class="eyebrow">Nội dung nổi bật</p>
+      <h2>Thử thách Tin học cơ bản</h2>
+      <p>Làm bài ngay và kiểm tra kiến thức của bạn.</p>
+      <button id="openAd">Xem ngay</button>
+    </dialog>
+
+    <div id="toast"></div>
+    <script src="/app.js"></script>
+  </body>
 </html>

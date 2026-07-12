@@ -1,8 +1,32 @@
 [
-  {"title":"Bài thi Tin học cơ bản","category":"Tin học","duration_minutes":15},
-  {"title":"Bài thi HTML/CSS","category":"Lập trình web","duration_minutes":20},
-  {"title":"Bài thi JavaScript cơ bản","category":"Lập trình","duration_minutes":20},
-  {"title":"Bài thi Tiếng Anh cơ bản","category":"Tiếng Anh","duration_minutes":15},
-  {"title":"Bài thi Toán tư duy","category":"Toán","duration_minutes":15},
-  {"title":"Bài thi Kiến thức chung","category":"Kiến thức chung","duration_minutes":10}
+  {
+    "title": "Bài thi Tin học cơ bản",
+    "category": "Tin học",
+    "duration_minutes": 15
+  },
+  {
+    "title": "Bài thi HTML/CSS",
+    "category": "Lập trình web",
+    "duration_minutes": 20
+  },
+  {
+    "title": "Bài thi JavaScript cơ bản",
+    "category": "Lập trình",
+    "duration_minutes": 20
+  },
+  {
+    "title": "Bài thi Tiếng Anh cơ bản",
+    "category": "Tiếng Anh",
+    "duration_minutes": 15
+  },
+  {
+    "title": "Bài thi Toán tư duy",
+    "category": "Toán",
+    "duration_minutes": 15
+  },
+  {
+    "title": "Bài thi Kiến thức chung",
+    "category": "Kiến thức chung",
+    "duration_minutes": 10
+  }
 ]
